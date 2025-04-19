@@ -5,13 +5,13 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Install necessary packages
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update -y && apt-get update -y --fix-missing && apt-get install -y --no-install-recommends \
     gallery-dl \
     yt-dlp \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Flask
-RUN pip install Flask
+RUN pip install Flask && pip install --upgrade gallery-dl
 
 # Copy the current directory contents into the container at /app
 COPY . /app

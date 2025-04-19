@@ -40,10 +40,16 @@ def download_media():
     try:
         if is_video_url(url):
             # Use yt-dlp for video URLs
-            subprocess.run(['yt-dlp', '-o', f'{DOWNLOAD_DIR}/%(title)s.%(ext)s', url], check=True)
+            result = subprocess.run(['yt-dlp', '--update', '--verbose', '--ignore-errors', '--user-agent', 'Mozilla/5.0', '--trust-server-names', '-o', f'{DOWNLOAD_DIR}/%(title)s.%(ext)s', url], check=True, capture_output=True, text=True)
+            print(f"yt-dlp result: {result.returncode}, stdout: {result.stdout}, stderr: {result.stderr}")
+            if result.returncode != 0:
+                print(f"yt-dlp failed with error: {result.stderr}")
         else:
             # Use gallery-dl for non-video URLs (assuming they are images/galleries)
-            subprocess.run(['gallery-dl', '-d', DOWNLOAD_DIR, url], check=True)
+            result = subprocess.run(['gallery-dl', '--verbose', '--ignore-errors', '--user-agent', 'Mozilla/5.0', '--trust-server-names', '-d', DOWNLOAD_DIR, url], check=True, capture_output=True, text=True)
+            print(f"gallery-dl result: {result.returncode}, stdout: {result.stdout}, stderr: {result.stderr}")
+            if result.returncode != 0:
+                print(f"gallery-dl failed with error: {result.stderr}")
 
         # Note: This is a simplified approach. In a production environment,
         # you would need logic to determine the actual downloaded filename(s)
@@ -52,15 +58,18 @@ def download_media():
         # You would need to inspect the output of yt-dlp or gallery-dl to get the filename.
         # A more robust solution might involve parsing the output or having yt-dlp/gallery-dl
         # output the filename to a known location.
-
         # For demonstration, let's try to find a file in the download directory
         # This is not reliable for all cases.
+
         downloaded_files = os.listdir(DOWNLOAD_DIR)
+        print(f"Downloaded files: {downloaded_files}")
         if downloaded_files:
             # Assuming the first file found is the one we want to serve
             filepath = os.path.join(DOWNLOAD_DIR, downloaded_files[0])
+            print(f"Filepath: {filepath}")
             return send_file(filepath, as_attachment=True)
         else:
+            print("No files were found after download.")
             return "Download completed, but no files were found.", 500
 
     except subprocess.CalledProcessError as e:
