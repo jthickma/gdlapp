@@ -41,7 +41,7 @@ iface = gr.Interface(
     title="Image Processing App with Provider API"
 )
 
+
 if __name__ == "__main__":
-    # Launch the Gradio app, making it accessible within the Docker container
-    iface.launch(server_name="0.0.0.0", server_port=7860)
-    
+    iface.launch(server_name="0.0.0.0", server_port=7860, share=False)
+        
